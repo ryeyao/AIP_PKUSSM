@@ -1,0 +1,120 @@
+#include<iostream>
+#include<fstream>
+#include<string.h>
+#include<map>
+#include<vector>
+#include<regex.h>
+
+using namespace std;
+
+string getContentStr(char* path) {
+
+    string content, line;
+    ifstream in_file(path);
+
+    while(!in_file.eof()) {
+        getline(in_file, line);
+        content += line;
+    }
+
+    in_file.close();
+    return content;
+}
+
+bool match(char* val, char* regex_str) {
+
+   char* regex = regex_str;
+   regex_t preg;
+   int ret_val = regcomp(&preg, regex, REG_EXTENDED);
+   if (ret_val != 0) {
+       cout << "An error happened in regcomp." << endl;
+       return false;
+   }
+   ret_val = regexec(&preg, val, 0, 0, 0);
+
+   if (ret_val != 0) {
+       if (ret_val > 0) {
+           cout << "Not Match!" << endl;
+           regfree(&preg);
+       }
+       return false; 
+   }
+
+   regfree(&preg);
+   return true;
+
+}
+
+vector<string> getWords(string content) {
+
+   vector<string> wordsList;
+   int index = 0;
+   int wordIndex = 0;
+   bool is_new_word = false;
+   string a_word;
+
+   while (index < content.length()) {
+       switch(content[index]) {
+           case ' ':
+           case '\t':
+           case '\r':
+           case '\n':
+               index++;
+               if (is_new_word) {
+                   wordsList.push_back(a_word);
+                   a_word = "";
+                   is_new_word = false;
+               }
+               continue;
+           default :
+               is_new_word = true;
+               a_word += content[index];
+               index++;
+
+       }
+       //if (match(&content[index], "\s")) {
+       if ((content[index] < 'a' || content[index] > 'Z')
+               && (content[index] < '0' || content[index] > '9')) {
+           
+           index++;
+           if (is_new_word) {
+               wordsList.push_back(a_word);
+               a_word = "";
+               is_new_word = false;
+           }
+           continue;
+       }
+       is_new_word = true;
+       a_word += content[index];
+       index++;
+   }
+
+   return wordsList;
+}
+
+map<string, int> parseAndCount(vector<string> content) {
+    map<string, int> wordsCount;
+    for (vector<string>::iterator ii = content.begin(); ii != content.end(); ++ii) {
+        string curr_word = (*ii); 
+        wordsCount[curr_word] = wordsCount[curr_word] + 1;
+    }
+    
+    return wordsCount;
+    
+}
+
+
+int main() {
+
+    string content = getContentStr("test/testFile1");
+    vector<string> words = getWords(content);
+    map<string, int> wordsCount = parseAndCount(words);
+    
+    for (map<string, int>::iterator ii = wordsCount.begin(); ii != wordsCount.end(); ++ii) {
+        cout << (*ii).first << "[" << (*ii).second << "]" << endl;
+    }
+   // cout<<content<<endl;
+    return 0;
+}
+
+
