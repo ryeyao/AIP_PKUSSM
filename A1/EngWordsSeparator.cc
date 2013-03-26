@@ -34,6 +34,35 @@ vector<string> getWords(string content) {
            case '\t':
            case '\r':
            case '\n':
+           case '\"':
+           case '\'':
+           case '.':
+           case ',':
+           case '<':
+           case '>':
+           case '\\':
+           case '/':
+           case '!':
+           case '@':
+           case '#':
+           case '$':
+           case '%':
+           case '^':
+           case '&':
+           case '*':
+           case '(':
+           case ')':
+           case '_':
+           case '=':
+           case '+':
+           case '?':
+           case '[':
+           case ']':
+           case '{':
+           case '}':
+           case '~':
+           case '`':
+
                index++;
                if (is_new_word) {
                    wordsList.push_back(a_word);
