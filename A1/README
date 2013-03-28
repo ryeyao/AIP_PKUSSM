@@ -1,0 +1,30 @@
+High-Level Internet Programming
+
+Author: Rye Yao
+E-mail: rye.y.cn@gmail.com
+Date: 2013/03/23
+
+Assignment 1
+
+Two tasks:
+
+1. Writing a program in C/C++ to calculate words' occurancy. Note that 'examples' and 'example' should be treated as different word.
+
+2. Writing a program performing the communication via signal between the father process and the child process.
+
+
+Notes:
+
+There are two versions of task #1. The one with a _regex appended is implemented with boost library supported. The other one is implemented with switch-case.
+
+Q&A:
+Q: How to fix the 'undefined reference to detail_regex...' or the similar error while compiling the code?
+A: You should have 'boost' libiraries installed in your environment. 
+  a. To archieve this you can simply type the following command in the terminal(I assume that you are using Debian Linux like ubuntu):
+  
+     $ sudo apt-get install libboost-all-dev
+
+  b. Modify the Makefile in the 'LIBS' variant's value, change the old boost lib path to your own.
+
+
+
