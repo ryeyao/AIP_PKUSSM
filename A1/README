@@ -1,0 +1,20 @@
+High-Level Internet Programming
+
+Assignment 1
+
+Two tasks:
+
+1. Writing a program in C/C++ to calculate words' occurancy. Note that 'examples' and 'example' should be treated as different word.
+
+
+Q&A:
+Q: How to fix the 'undefined reference to detail_regex...' or the similar error while compiling the code?
+A: You should have 'boost' libiraries installed in your environment. 
+  a. To archieve this you can simply type the following command in the terminal(I assume that you are using Debian Linux like ubuntu):
+  
+     $ sudo apt-get install libboost-all-dev
+
+  b. Modify the Makefile in the 'LIBS' variant's value, change the old boost lib path to your own.
+
+
+
