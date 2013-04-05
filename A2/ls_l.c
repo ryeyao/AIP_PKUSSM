@@ -14,6 +14,7 @@
 #define EXIT_FAILURE -1
 #define EXIT_SUCCESS 0
 
+// Get user's name by uid
 char* uid_to_name(uid_t uid) {
     struct passwd *getpwuid(), *pw_ptr;
     static char numstr[10];
@@ -27,6 +28,7 @@ char* uid_to_name(uid_t uid) {
     }
 }
 
+// Get group's name by gid
 char* gid_to_name(gid_t gid) {
     struct group *getgrgid(), *grp_ptr;
     static char numstr[10];
@@ -39,6 +41,8 @@ char* gid_to_name(gid_t gid) {
     }
 }
 
+// Get the absolute path of the file in current directory
+// Note: the returned value must be freed after calling this function
 char* get_path(char* name) {
     char* current_dir;
     int path_len;
@@ -50,9 +54,7 @@ char* get_path(char* name) {
     path = strcpy(path, current_dir);
     path = strcat(path, "/");
     path = strcat(path, name);
-//    printf("%s \r\n", path);
 
-//   free(path);
     free(current_dir);
     return path;
 
@@ -140,11 +142,12 @@ void info_file(char* name) {
     nlink = sb.st_nlink;
     usr_name = uid_to_name(sb.st_uid);
     usr_group_name = gid_to_name(sb.st_gid);
-    size = (long) sb.st_blksize;
+    size = (long) sb.st_size;
     strcpy(mtime, ctime(&sb.st_mtime));
     int end = strlen(mtime);
     mtime[end - 2] = '\0'; // remove the '\n'
 
+    // FIXME: Not sure if the symbols match the type
     switch (sb.st_mode & S_IFMT) {
        case S_IFBLK:  
            type = 'b';
@@ -156,22 +159,23 @@ void info_file(char* name) {
            type = 'd';
            break;
        case S_IFIFO:
-           type = 'f';
+           type = 'p';
            break;
        case S_IFLNK:
            type = 'l';
            break;
        case S_IFREG:
-           type = 'r';
+           type = '-';
            break;
        case S_IFSOCK:
            type = 's';
            break;
        default:
+           type = '?';
            break;
     }
 
-    printf("%c%9s %1d %s %s %ld %s %s\n", type, perm, nlink, usr_name, usr_group_name, size, mtime, name);
+    printf("%c%9s %1d %s %s %6ld %s %s\n", type, perm, nlink, usr_name, usr_group_name, size, mtime, name);
 
     free(path);
     free(perm);
