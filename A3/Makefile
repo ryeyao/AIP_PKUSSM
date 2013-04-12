@@ -28,6 +28,9 @@ FILECLIENT_H = FileClient.h
 FILECLIENT_O = FileClient.o
 
 all: $(TARGETS)
+	cp Server tests/Server
+	cp Client tests/Client
+
 
 Server: $(SERVER_O)
 	$(CPP) $(CFLAGS) -o $@ $^

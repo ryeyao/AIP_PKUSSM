@@ -11,16 +11,19 @@
 #define MESSAGE_LEN sizeof(Message)
 #define MAX_FILE_SIZE 4096
 
+#define SOCKETIO_BUFFER_SIZE 512
+
 typedef enum Command {
     PUT,
     GET,
     LS,
     CD,
-    ERROR
+    ERROR,
+    QUIT,
+    CONNECT
 }Command;
 
 typedef struct Message {
-    char type; // 0 for trans, 1 for command,  2 for error.
     Command command; // command index
     char fname[MAX_FILE_NAME_LEN];
     int data_size; // file data if type is trans 
@@ -30,7 +33,7 @@ typedef struct Message {
 
 
 void parse_msg(Message, char*);
-void handle_msg(Message*, int);
+int handle_msg(Message*, int);
 void* clithread(void*);
 void listen(int);
 void add_handler(Command, void*);

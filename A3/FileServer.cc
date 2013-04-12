@@ -27,10 +27,10 @@ typedef int HDLR_FP(Message*, int);
 using namespace std;
 map<Command, HDLR_FP*> hdlr_map;
 
-void handle_msg(Message* msg, int connfd) {
+int handle_msg(Message* msg, int connfd) {
 
     HDLR_FP* hdlr = hdlr_map[msg->command];
-    hdlr(msg, connfd);
+    return hdlr(msg, connfd);
 }
 
 void* clithread (void* arg) {
@@ -39,15 +39,24 @@ void* clithread (void* arg) {
     int connfd = *((int *) arg);
     pthread_detach(pthread_self());
 
-    Message msg;
-    int number_bytes = recv(connfd, &msg, MESSAGE_LEN, 0); 
-
-    if (number_bytes == -1) {
-        perror("recv");
-    } else {
-        cout<<"received "<<number_bytes<<" bytes"<<endl;
+    while(true) {
         //parse_msg(&msg, buffer);
-        handle_msg(&msg, connfd);
+        printf("wait for command\n");
+        Message msg;
+        int number_bytes = recv(connfd, &msg, MESSAGE_LEN, 0); 
+        if (number_bytes <= 0) {
+            perror("recv");
+            free(arg);
+            close(connfd);
+            pthread_exit(NULL);
+        }
+        cout<<"command received "<<number_bytes<<" bytes"<<endl;
+
+        if (handle_msg(&msg, connfd) == -1 ) {
+
+            break;
+
+        }
     }
     free(arg);
     close(connfd);
