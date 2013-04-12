@@ -1,0 +1,93 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BACKLOG	A3/FileServer.cc	22;"	d	file:
+CC	A1/Makefile	/^CC=gcc$/;"	m
+CC	A2/Makefile	/^CC=gcc$/;"	m
+CC	A3/Makefile	/^CC = gcc$/;"	m
+CD	A3/FileServer.h	/^    CD$/;"	e	enum:Command
+CFLAGS	A1/Makefile	/^CFLAGS=-Wall -g -lboost_regex$/;"	m
+CFLAGS	A2/Makefile	/^CFLAGS=-Wall -g$/;"	m
+CFLAGS	A3/Makefile	/^CFLAGS = -g -Wall$/;"	m
+CPP	A1/Makefile	/^CPP=g++$/;"	m
+CPP	A2/Makefile	/^CPP=g++$/;"	m
+CPP	A3/Makefile	/^CPP = g++$/;"	m
+Command	A3/FileServer.h	/^typedef enum Command {$/;"	g
+Command	A3/FileServer.h	/^}Command;$/;"	t	typeref:enum:Command
+EXIT_FAILURE	A2/ls_l.c	14;"	d	file:
+EXIT_FAILURE	A2/ls_tree.c	11;"	d	file:
+EXIT_SUCCESS	A2/ls_l.c	15;"	d	file:
+FILESERVER_H	A3/FileServer.h	8;"	d
+GET	A3/FileServer.h	/^    GET,$/;"	e	enum:Command
+IS_DIR	A2/ls_tree.c	/^int IS_DIR(mode_t mode) {$/;"	f
+LIBS	A1/Makefile	/^LIBS=-L\/home\/rye\/Programs\/libs\/boost_1_53_0\/libs $/;"	m
+LS	A3/FileServer.h	/^    LS,$/;"	e	enum:Command
+LS_L_C	A2/ls_l.c	11;"	d	file:
+LS_TREE_C	A2/ls_tree.c	8;"	d	file:
+MAX_FILE_NAME_LEN	A3/FileServer.h	11;"	d
+MAX_LEN	A3/recvcli.c	23;"	d	file:
+MESSAGE_LEN	A3/FileServer.h	12;"	d
+Message	A3/FileServer.h	/^typedef struct Message {$/;"	s
+Message	A3/FileServer.h	/^}Message;$/;"	t	typeref:struct:Message
+PUT	A3/FileServer.h	/^    PUT,$/;"	e	enum:Command
+SERVER_C	A3/Makefile	/^SERVER_C = FileServer.cc$/;"	m
+SERVER_H	A3/Makefile	/^SERVER_H = FileServer.h$/;"	m
+SIGNAL_C	A1/Makefile	/^SIGNAL_C=signal_comm.cc$/;"	m
+TARGETS	A1/Makefile	/^TARGETS=parse parse_regex signal$/;"	m
+TARGETS	A2/Makefile	/^TARGETS= ls_l ls_tree$/;"	m
+TARGETS	A3/Makefile	/^TARGETS = Server$/;"	m
+Test	A3/test.cc	/^typedef enum Test {$/;"	g	file:
+Test	A3/test.cc	/^}Test;$/;"	t	typeref:enum:Test	file:
+Test1	A3/test.cc	/^    Test1,$/;"	e	enum:Test	file:
+Test2	A3/test.cc	/^    Test2,$/;"	e	enum:Test	file:
+Test3	A3/test.cc	/^    Test3,$/;"	e	enum:Test	file:
+Test4	A3/test.cc	/^    Test4,$/;"	e	enum:Test	file:
+Test5	A3/test.cc	/^    Test5,$/;"	e	enum:Test	file:
+Test6	A3/test.cc	/^    Test6,$/;"	e	enum:Test	file:
+Test7	A3/test.cc	/^    Test7,$/;"	e	enum:Test	file:
+Test8	A3/test.cc	/^    Test8$/;"	e	enum:Test	file:
+WORDSEP_C	A1/Makefile	/^WORDSEP_C=EngWordsSeparator.cc$/;"	m
+WORDSEP_TEST_C	A1/Makefile	/^WORDSEP_TEST_C=EngWordsSeparator_regex.cc$/;"	m
+WORDSEP_TEST_H	A1/Makefile	/^WORDSEP_TEST_H=-I\/home\/rye\/Programs\/libs\/boost_1_53_0\/boost $/;"	m
+add_handler	A3/FileServer.cc	/^void add_handler (Command cmd, int (*handler)(Message*, int)) {$/;"	f
+childProcess	A1/signal_comm.cc	/^void childProcess(pid_t ppid) {$/;"	f
+clithread	A3/FileServer.cc	/^void* clithread (void* arg) {$/;"	f
+command	A3/FileServer.h	/^    Command command; \/\/ command index$/;"	m	struct:Message
+compare	A2/ls_tree.c	/^int compare(struct dirent ** ent1, struct dirent ** ent2) {$/;"	f
+currentDateTime	A1/signal_comm.cc	/^const string currentDateTime() {$/;"	f
+doCalculate	A3/test.cc	/^void doCalculate(void (*p)(int, int)) {$/;"	f
+fname	A3/FileServer.h	/^    char fname[MAX_FILE_NAME_LEN];$/;"	m	struct:Message
+fsize	A3/FileServer.h	/^    int fsize; \/\/ Valid only if type is trans $/;"	m	struct:Message
+getContentStr	A1/EngWordsSeparator.cc	/^string getContentStr(char* path) {$/;"	f
+getContentStr	A1/EngWordsSeparator_regex.cc	/^string getContentStr(char* path) {$/;"	f
+getWords	A1/EngWordsSeparator.cc	/^vector<string> getWords(string content) {$/;"	f
+getWords	A1/EngWordsSeparator_regex.cc	/^vector<string> getWords(string content) {$/;"	f
+get_mode	A2/ls_tree.c	/^long get_mode(char* name) {$/;"	f
+get_path	A2/ls_l.c	/^char* get_path(char* name) {$/;"	f
+get_path	A2/ls_tree.c	/^char* get_path(char* name) {$/;"	f
+gid_to_name	A2/ls_l.c	/^char* gid_to_name(gid_t gid) {$/;"	f
+handle_msg	A3/FileServer.cc	/^void handle_msg(Message* msg, int connfd) {$/;"	f
+info_file	A2/ls_l.c	/^void info_file(char* name) {$/;"	f
+listen	A3/FileServer.cc	/^void listen(int port) {$/;"	f
+main	A1/EngWordsSeparator.cc	/^int main() {$/;"	f
+main	A1/EngWordsSeparator_regex.cc	/^int main(int argc, char** argv) {$/;"	f
+main	A1/signal_comm.cc	/^int main(void){$/;"	f
+main	A2/ls_l.c	/^int main(int argc, char** argv) {$/;"	f
+main	A2/ls_tree.c	/^int main (int argc, char** argv) {$/;"	f
+main	A3/FileServer.cc	/^int main(int argc, char** argv) {$/;"	f
+main	A3/recvcli.c	/^int main(int argc, char *argv[])$/;"	f
+main	A3/test.cc	/^int main() {$/;"	f
+p	A3/test.cc	/^void p(int i, int j) {$/;"	f
+parseAndCount	A1/EngWordsSeparator.cc	/^map<string, int> parseAndCount(vector<string> content) {$/;"	f
+parseAndCount	A1/EngWordsSeparator_regex.cc	/^map<string, int> parseAndCount(vector<string> content) {$/;"	f
+parse_msg	A3/FileServer.cc	/^void parse_msg(Message* msg, char* buf) {$/;"	f
+perm_str	A2/ls_l.c	/^char* perm_str(mode_t mode) {$/;"	f
+print_file	A2/ls_tree.c	/^void print_file(int ident, char * name) {$/;"	f
+sigHandler	A1/signal_comm.cc	/^void sigHandler(int signum) {$/;"	f
+sigHandler2	A1/signal_comm.cc	/^void sigHandler2(int signum) {$/;"	f
+sighandler	A3/recvcli.c	/^void sighandler(int signo) $/;"	f
+type	A3/FileServer.h	/^    char type; \/\/ 0 for trans, 1 for command$/;"	m	struct:Message
+uid_to_name	A2/ls_l.c	/^char* uid_to_name(uid_t uid) {$/;"	f

@@ -1,0 +1,6 @@
+total 36
+-rwxrwxr-x 1 rye rye 11241  4月  1 11:49 ls_l
+-rw-rw-r-- 1 rye rye  3323  4月  3 18:08 ls_l.c
+-rw-rw-r-- 1 rye rye     0  4月  3 18:08 lsout
+-rw-rw-r-- 1 rye rye   144  4月  1 10:45 Makefile
+-rw-rw-r-- 1 rye rye 16109  4月  3 18:05 statman
