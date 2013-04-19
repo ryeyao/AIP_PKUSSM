@@ -7,16 +7,17 @@ Preparation
 -----------
 * Install libasound2-dev
     sudo apt-get install libasound2-dev
-* Install libav (choose either of the two)
-** From source
-    git clone http://github.com/libav/libav
-    cd libav
-    ./configure --prefix=/usr/local/libav --enable-small --disable-yasm --disable-encoders --disable-programs --disable-muxers --disable-filters --disable-bsfs --disable-doc --disable-decoders --enable-decoder=pcm* --enable-decoder=mp3* --enable-shared --disable-static
-    sudo make
-    make install
 
-** Using the shared librarys attached(default)
-    Do nothing for now.
+* Install libav (choose either of the two)
+    * From source
+        git clone http://github.com/libav/libav
+        cd libav
+        ./configure --prefix=/usr/local/libav --enable-small --disable-yasm --disable-encoders --disable-programs --disable-muxers --disable-filters --disable-bsfs --disable-doc --disable-decoders --enable-decoder=pcm* --enable-decoder=mp3* --enable-shared --disable-static
+        sudo make
+        make install
+
+    * Using the shared librarys attached(default)
+        Do nothing for now.
 
 Compile mp3player
 -----------------
