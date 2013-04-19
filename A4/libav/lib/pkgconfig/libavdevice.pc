@@ -10,5 +10,5 @@ Requires:
 Requires.private: libavformat = 55.0.0
 Conflicts:
 Libs: -L${libdir} -lavdevice 
-Libs.private: -lasound -lm -pthread
+Libs.private: -lasound -lm -pthread -lz
 Cflags: -I${includedir}

@@ -7,8 +7,8 @@ Name: libavformat
 Description: Libav container format library
 Version: 55.0.0
 Requires: 
-Requires.private: libavcodec = 55.2.0
+Requires.private: libavcodec = 55.1.0
 Conflicts:
 Libs: -L${libdir} -lavformat 
-Libs.private: -lasound -lm -pthread
+Libs.private: -lasound -lm -pthread -lz
 Cflags: -I${includedir}

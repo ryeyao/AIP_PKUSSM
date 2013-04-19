@@ -5,10 +5,10 @@ includedir=${prefix}/include
 
 Name: libavcodec
 Description: Libav codec library
-Version: 55.2.0
+Version: 55.1.0
 Requires: 
 Requires.private: libavutil = 52.10.0
 Conflicts:
 Libs: -L${libdir} -lavcodec 
-Libs.private: -lasound -lm -pthread
+Libs.private: -lasound -lm -pthread -lz
 Cflags: -I${includedir}

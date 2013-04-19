@@ -3,8 +3,10 @@ CPP=g++
 
 CFLAGS=-g -Wall
 
-LIBS=-pthread -L/usr/local/libav/lib -lavformat -lavcodec -lavutil -lasound
-INCLUDES= -I. -I/usr/local/libav/include
+LIBSDIR=libav/lib
+LIBS=-pthread -L$(LIBSDIR) -lavformat -lavcodec -lavutil -lasound
+#LIBS=-pthread -L/usr/local/libav/lib -lavutil -lasound
+INCLUDES= -I. -Ilibav/include
 
 TARGETS=mp3player
 

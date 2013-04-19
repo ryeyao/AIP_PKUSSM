@@ -10,5 +10,5 @@ Requires:
 Requires.private: libavutil = 52.10.0
 Conflicts:
 Libs: -L${libdir} -lavresample 
-Libs.private: -lasound -lm -pthread
+Libs.private: -lasound -lm -pthread -lz
 Cflags: -I${includedir}
