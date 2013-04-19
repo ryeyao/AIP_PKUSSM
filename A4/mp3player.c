@@ -8,6 +8,7 @@
 //#include <libavdevice/alsa-audio.h>
 #include <alsa/asoundlib.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <pthread.h>
 #include <string.h>
 
@@ -58,10 +59,12 @@ void *thrHdlr (void *arg) {
 
     return ((void *) 0);
 }
+
 int main (int argc, char** argv) {
 
     /*ffmpeg parameters*/
-    const char *fileName = "~/Music/the_sun_also_rises.mp3";
+    const char *fileName = argv[1];
+    //const char *fileName = "http://download.go2sing.com/song/118502/1151578373.mp3";
 
     AVFormatContext *pFmtCtx = NULL;
     int i, audioStream = -1;
@@ -91,28 +94,45 @@ int main (int argc, char** argv) {
 
     av_register_all();
     
-    avformat_open_input (&pFmtCtx, fileName, NULL, NULL);
+    //avformat_network_init();
+    // Open video file
+    if (avformat_open_input (&pFmtCtx, fileName, NULL, NULL) != 0) {
+        perror ("avformat_open_input");
+        exit (0);
+    }
 
-    avformat_find_stream_info (pFmtCtx, NULL);
+    // Retrieve stream information
+    if (avformat_find_stream_info (pFmtCtx, NULL) < 0) {
+        perror ("find_stream_info");
+        exit (0);
+    }
 
+    // Find the first audio stream
     for (i = 0; i < pFmtCtx->nb_streams; ++i) {
-        if (( *(pFmtCtx->streams + i))->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if ((* (pFmtCtx->streams + i))->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
             audioStream = i;
             break;
         }
+    }
+
+    if (audioStream == -1) {
+        perror ("find first audio stream");
+        exit (0);
     }
 
     pCodecCtx = pFmtCtx->streams[audioStream]->codec;
     pCodec = avcodec_find_decoder (pFmtCtx->streams[audioStream]->codec->codec_id);
     avcodec_open2 (pCodecCtx, pCodec, NULL);
     pFrame = avcodec_alloc_frame();
-    display_codec_ctx(pCodecCtx);
+    display_codec_ctx (pCodecCtx);
 
-    snd_pcm_open (&pcm, "default", SND_PCM_STREAM_PLAYBACK, 0);
-    snd_pcm_hw_params_alloca (&params);
+    snd_pcm_open (&pcm, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0);
+    snd_pcm_hw_params_malloc (&params);
     snd_pcm_hw_params_any (pcm, params);
     snd_pcm_hw_params_set_access (pcm, params, SND_PCM_ACCESS_RW_INTERLEAVED);
+
     ffmpeg_fmt_to_alsa_fmt (pCodecCtx, pcm, params);
+
     snd_pcm_hw_params_set_channels (pcm, params, pCodecCtx->channels);
     val = pCodecCtx->sample_rate;
     snd_pcm_hw_params_set_rate_near (pcm, params, &val, &dir);
@@ -121,6 +141,9 @@ int main (int argc, char** argv) {
     }
 
     snd_pcm_hw_params (pcm, params);
+    snd_pcm_hw_params_free (params);
+    snd_pcm_prepare (params);
+    
     snd_pcm_sw_params_alloca (&swParams);
     snd_pcm_sw_params_current (pcm, swParams);
     snd_pcm_hw_params_get_buffer_size (params, &buffer_size);
@@ -129,7 +152,7 @@ int main (int argc, char** argv) {
 
     snd_mixer_selem_id_alloca (&sid);
     snd_mixer_selem_id_set_index (sid, 0);
-    snd_mixer_selem_id_set_name (sid, "Master");
+    snd_mixer_selem_id_set_name (sid, "Headphone");
     snd_mixer_open (&mixer, 0);
     snd_mixer_attach (mixer, "default");
     snd_mixer_selem_register (mixer, NULL, NULL);
@@ -142,6 +165,7 @@ int main (int argc, char** argv) {
         pthread_create (&tid, NULL, thrHdlr, (void *)elem);
     }
 
+    
     while (av_read_frame (pFmtCtx, &packet) >= 0) {
         if (packet.stream_index == audioStream) {
             gotFrames = 0;
@@ -159,7 +183,7 @@ int main (int argc, char** argv) {
                                 pCodecCtx->sample_fmt,
                                 1
                                 );
-                        if ((ret = snd_pcm_writei (pcm, pFrame->data[0], data_size / frameByte)) < 0) {
+                        if ((ret = snd_pcm_writei (pcm, pFrame->data[1], data_size / pCodecCtx->frame_size)) < 0) {
                             snd_pcm_recover (pcm, ret, 0);
                         }
                     }
