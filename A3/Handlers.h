@@ -11,5 +11,6 @@
 
 extern int get_handler (Message*, int);
 extern int put_handler (Message*, int);
+extern int quit_handler (Message*, int);
 
 #endif

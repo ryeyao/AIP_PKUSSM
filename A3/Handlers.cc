@@ -100,11 +100,11 @@ int put_handler (Message* msg, int connfd) {
     int rem_num = msg->data_size / SOCKETIO_BUFFER_SIZE;
     int i = 0;
     for (; i < rem_num; i++) {
-    if (recv(connfd, buff + i * SOCKETIO_BUFFER_SIZE, SOCKETIO_BUFFER_SIZE, 0) == -1) {
-        perror("recv");
-        fclose(fp);
-        return -1;
-    }
+        if (recv(connfd, buff + i * SOCKETIO_BUFFER_SIZE, SOCKETIO_BUFFER_SIZE, 0) == -1) {
+            perror("recv");
+            fclose(fp);
+            return -1;
+        }
     }
     int rem_bytes = resp_msg.data_size % SOCKETIO_BUFFER_SIZE;
     if (recv(connfd, buff + (i - 1) * SOCKETIO_BUFFER_SIZE, rem_bytes, 0) == -1) {
