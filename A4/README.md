@@ -9,15 +9,15 @@ Preparation
     sudo apt-get install libasound2-dev  
 
 ### Install libav (choose either of the two)  
-* From source  
-        git clone http://github.com/libav/libav  
-        cd libav  
-        ./configure --prefix=/usr/local/libav --enable-small --disable-yasm --disable-encoders --disable-programs --disable-muxers --disable-filters --disable-bsfs --disable-doc --disable-decoders --enable-decoder=pcm* --enable-decoder=mp3* --enable-shared --disable-static  
-        sudo make  
-        make install  
+#### From source  
+    git clone http://github.com/libav/libav  
+    cd libav  
+    ./configure --prefix=/usr/local/libav --enable-small --disable-yasm --disable-encoders --disable-programs --disable-muxers --disable-filters --disable-bsfs --disable-doc --disable-decoders --enable-decoder=pcm* --enable-decoder=mp3* --enable-shared --disable-static  
+    sudo make  
+    make install  
 
-* Using the shared librarys attached(default)  
-        Do nothing for now.  
+#### Using the shared librarys attached(default)  
+    Do nothing for now.  
 
 Compile mp3player
 -----------------
@@ -33,7 +33,7 @@ Usage
 -----
     ./mp3player [filename]  
     > filename:  
-    > Can be http url or local file path.  
+    >        Can be http url or local file path.  
     > e.g: 
     >        ./mp3player http://127.0.0.1/test/dadi.mp3  
     >        ./mp3player test/dadi.mp3  
