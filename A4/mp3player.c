@@ -91,7 +91,7 @@ int main (int argc, char** argv) {
 
     av_register_all();
     
-    avformat_open_input(&pFmtCtx, fileName, NULL, NULL);
+    avformat_open_input (&pFmtCtx, fileName, NULL, NULL);
 
     avformat_find_stream_info (pFmtCtx, NULL);
 
