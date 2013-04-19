@@ -4,9 +4,8 @@ CPP = g++
 CFLAGS = -g -Wall
 #CFLAGS += -D__STDC_CONSTANT_MACROS
 
-LIBS = -pthread -L./libav/libavcodec/ -lavcodec -L./libav/libavformat/ -lavformat -L./libav/libavutil -lavutil
-#INCLUDES = -I./include/libavcodec -I./include/libavformat -I./include/libavutil
-INCLUDES = -I./libav -I .
+LIBS = -pthread -L./lib/libavcodec/ -lavcodec -L./lib/libavformat/ -lavformat -L./lib/libavutil -lavutil -lasound
+INCLUDES = -I./include -I . -I/usr/include
 
 TARGETS = mp3player
 
@@ -15,7 +14,7 @@ MP3PLAYER_C = mp3player.c
 MP3PLAYER_O = mp3player.o
 
 all: $(TARGETS)
-	$(shell export LD_LIBRARY_PATH=libav/libavformat:libav/libavcodec:libav/libavutil:$LD_LIBRARY_PATH)
+	$(shell export LD_LIBRARY_PATH=lib/libavformat:lib/libavcodec:lib/libavutil:$LD_LIBRARY_PATH)
 
 mp3player: $(MP3PLAYER_O) 
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LIBS)
