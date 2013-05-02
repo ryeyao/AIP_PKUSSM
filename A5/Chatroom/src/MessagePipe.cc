@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-template <typename T>
+template <class T>
 MessagePipe<T>::MessagePipe (char* fifoname) {
 
     if (mkfifo (fifoname, 0777) < 0) {
@@ -20,11 +20,11 @@ MessagePipe<T>::MessagePipe (char* fifoname) {
     }
 };
 
-template <typename T>
+template <class T>
 MessagePipe<T>::~MessagePipe () {
 };
 
-template <typename T>
+template <class T>
 void MessagePipe<T>::putMessage (T msg) {
     int fd = 0;
     fd = open (fifoname, O_WRONLY);
@@ -41,7 +41,7 @@ void MessagePipe<T>::putMessage (T msg) {
     delete[] buffer;
 };
 
-template <typename T>
+template <class T>
 T MessagePipe<T>::getMessage () {
     int fd = 0;
     fd = open (fifoname, O_RDONLY);
