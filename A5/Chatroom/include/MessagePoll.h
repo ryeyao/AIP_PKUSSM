@@ -9,9 +9,9 @@
 template <class T>
 class MessagePoll {
     public:
-        MessagePoll ();
-        virtual ~MessagePoll ();
-        virtual void putMessage (T msg, char* data_buf) = 0;
+        //MessagePoll ();
+        //~MessagePoll ();
+        virtual void putMessage (T msg) = 0;
         virtual T getMessage () = 0;
 
 };

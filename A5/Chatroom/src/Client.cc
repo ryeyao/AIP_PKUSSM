@@ -28,6 +28,7 @@
 
 using namespace std;
 
+char my_name[MAX_FILE_NAME_LEN];
 void sighandler(int signo) 
 {
   int status;
@@ -126,27 +127,126 @@ int comm_put(int sockfd, char* fname) {
     return 0;
 }
 
-int comm_QUIT(int sockfd) {
+int comm_quit(int sockfd) {
 
 }
 
-int comm_CONNECT(int sockfd) {
+int comm_conn(int sockfd, char* name) {
+    printf ("| Connecting...\n");
+    Message msg;
+
+    msg.command = CONN;
+    strncpy (msg.fname, name, MAX_FILE_NAME_LEN);
+    msg.data_size = 0;
+    msg.data_ptr = NULL;
+    msg.from = 1;
+    msg.to = 1;
+
+    if (send(sockfd, &msg, MESSAGE_LEN, 0) == -1) {
+        perror("conn");
+        return -1;
+    }
+
+    printf ("| Connected!\n");
+    printf ("| \n");
+    printf ("=================================================\n");
+    printf ("| Hello %s, you have been connected to the server\n", name);
+    printf ("| usage:\n");
+    printf ("| \tsend|sd <name> <message>\n");
+    printf ("| e.g\n");
+    printf ("| console> send Jack Hi jack!\n");
+    printf ("| [%s] says to [Jack]: Hi jack!\n", name);
+    printf ("=================================================\n");
+    return 0;
+}
+
+int comm_sendmsg (int sockfd, char* name, char* content) {
+
+    Message msg;
+
+    msg.command = SENDMSG;
+    strncpy (msg.fname, name, MAX_FILE_NAME_LEN);
+    msg.data_size = strlen (content);
+    msg.data_ptr = content;
+    msg.from = 1;
+
+    if (!strcmp (name, "all")) {
+        msg.to = 0;
+    } else {
+        msg.to = 2;
+    }
+    
+    int buff_len = MESSAGE_LEN + msg.data_size;
+    char *buff = (char*) malloc(buff_len);
+    memcpy (buff, &msg, MESSAGE_LEN);
+    memcpy (buff + MESSAGE_LEN, msg.data_ptr, msg.data_size);
+    if (send(sockfd, buff, buff_len, 0) == -1) {
+        perror("send");
+        free(buff);
+        return -1;
+    }
+
+    //printf("PUT file %s(%d bytes) successfully\n", msg.fname, st.st_size);
+    MESSAGE_DIS(my_name, msg.fname, msg.data_ptr);
+    free(buff);
+    return 0;
+}
+
+void* comm_waitmsg (void* sockfd) {
+
+    int connfd = (int)sockfd;
+    printf("\ndebug: waiting message\n");
+    while (true) {
+        Message recv_msg;
+        int number_bytes = 0;
+        if ((number_bytes = recv(connfd, &recv_msg, MESSAGE_LEN, 0)) == -1){
+            perror("recv");
+            exit(1);
+        }
+
+        char* buff = (char*) malloc(recv_msg.data_size);
+        if ((number_bytes = recv(connfd, buff, recv_msg.data_size, 0)) == -1){
+            perror("recv");
+            exit(1);
+        }
+        recv_msg.data_ptr = buff;
+        
+        if (recv_msg.to == 0) {
+            MESSAGE_DIS(recv_msg.fname, "All", recv_msg.data_ptr);
+        } else {
+            MESSAGE_DIS(recv_msg.fname, my_name, recv_msg.data_ptr);
+        }
+    }
 }
 
 int console(int sockfd) {
+
+
+    cout<< "=================================================" <<endl;
+    cout<< "| Please enter your nick name: ";
+    cin>> my_name;
+    cout<< "| " <<endl;
+    comm_conn (sockfd, my_name);
+    
+    // Create read thread
+    pthread_t pt;
+    if (pthread_create(&pt, NULL, comm_waitmsg, (void*)sockfd) != 0) {
+        perror("pthread_create");
+        return -1;
+    }
 
     char console_comm[MAX_COMMAND_LEN];
     char fname[MAX_FILE_NAME_LEN];
     while(true) {
 
-        cout<<"ftp>";
+        cout<<"console>";
         cin>>console_comm;
 
         if (strlen(console_comm) == 4 
                 && !strcmp(console_comm, "quit")
                 || !strcmp(console_comm, "q")) {
 
-            comm_QUIT(sockfd);
+            comm_quit(sockfd);
             break;
 
         } else if (strlen(console_comm) == 3
@@ -161,7 +261,19 @@ int console(int sockfd) {
             cin>>fname;
             comm_get(sockfd, fname);  
 
+        } else if (strlen(console_comm) >= 2
+                && (!strcmp(console_comm, "send")
+                    || !strcmp(console_comm, "sd"))) {
+            char name[MAX_FILE_NAME_LEN];
+            char msg_content[MAX_DATA_SIZE];
+            cin>>name;
+            gets (msg_content);
+            comm_sendmsg (sockfd, name, msg_content);
+        } else {
+            cout<<endl;
+            continue;
         }
+        cout<<endl;
     }
 }
 int main(int argc, char *argv[])
@@ -177,7 +289,7 @@ int main(int argc, char *argv[])
    int status;
 
    if(argc != 3) {
-      printf("Usage:readcli <address> <port> \n");
+      printf("Usage:Client <address> <port> \n");
       return 0;
    }
 

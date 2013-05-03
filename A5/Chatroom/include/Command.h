@@ -13,8 +13,9 @@ typedef enum Command {
     CD,
     ERROR,
     QUIT,
-    CONNECT,
-    CHAT
-}Command;
+    CONN,
+    WAITMSG,
+    SENDMSG
+} Command;
 
 #endif

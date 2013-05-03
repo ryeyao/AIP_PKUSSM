@@ -1,13 +1,16 @@
 CC = gcc
 CPP = g++
 
-CFLAGS = -g -Wall #-MM
+CFLAGS = -g -Wall -std=c++0x #-MM
 
 CFLAGS += -pthread
 
+CFLAGS += $(INCS)
+
 INCS = -I./include
 
-CFLAGS += $(INCS)
+DEFINES = -DMSG_STRATEGY_PIPE
+CFLAGS += $(DEFINES)
 
 TARGETS = bin/Server bin/Client
 
@@ -34,13 +37,13 @@ MESSAGESHAREDMEMORY_C = src/MessageSharedMemory.cc
 
 all: $(TARGETS)
 
-bin/Server: $(SERVER_O) $(HANDLERS_O) $(MESSAGEPOLL_O)
+bin/Server: $(SERVER_O) $(MESSAGEPOLL_O) $(HANDLERS_O) 
 	$(CPP) $(CFLAGS) -o $@ $^
 
 bin/Client: $(CLIENT_O)
 	$(CPP) $(CFLAGS) -o $@ $^
 
-Server.o: $(SERVER_C) $(SERVER_H) $(HANDLERS_H) 
+Server.o: $(SERVER_C) $(SERVER_H) $(HANDLERS_H) $(MESSAGEPOLL_H)
 	$(CPP) $(CFLAGS) -c $(SERVER_C)
 
 Handlers.o: $(HANDLERS_C) $(HANDLERS_H) $(SERVER_H)
@@ -61,5 +64,6 @@ Client.o: $(CLIENT_C) $(CLIENT_H)
 .PHONY:clean
 clean:
 	rm -f $(TARGETS)
+	rm -rf bin/*
 	rm -f test
 	rm -f src/*.o src/*.out *.o

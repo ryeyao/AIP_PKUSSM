@@ -4,29 +4,38 @@
  * Date: 2013/04/08
  */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<errno.h>
-#include<string.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
-#include<pthread.h>
-#include<iostream>
-#include<map>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <signal.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <pthread.h>
+#include <iostream>
+#include <map>
 
 #include "Server.h"
 #include "Handlers.h"
-
+using namespace std;
 #define BACKLOG 10
+
 typedef int HDLR_FP(Message*, int);
 
 
-using namespace std;
 map<Command, HDLR_FP*> hdlr_map;
+int sockfd;
 
+void sig_handler (int signo) {
+
+    close (sockfd);
+    //printf ("Server terminated.\n");
+    SRVR_LOG("Server terminated.\n");
+    exit (0);
+}
 /**
  * Put Message into a struct specified by macro e.g. MessageQueue, Pipe, SharedMemory
  */
@@ -37,26 +46,62 @@ int handle_msg(Message* msg, int connfd) {
     return hdlr(msg, connfd);
 }
 
+int parse_msg (Message* msg, int connfd) {
+
+    //printf("wait for command\n");
+    SRVR_LOG ("wait for Command\n");
+    // Parse header
+    int number_bytes = recv(connfd, msg, MESSAGE_LEN, 0); 
+    if (number_bytes <= 0) {
+        perror("recv no data");
+        return -1;
+    }
+
+    if (msg->data_size <= 0) {
+        msg->data_size = 0;
+        msg->data_ptr = NULL;
+        return 0;
+    }
+
+    // Parse data
+    char* buff = (char*)malloc(msg->data_size);
+    int rem_num = msg->data_size / SOCKETIO_BUFFER_SIZE;
+    int i = 0;
+    for (; i < rem_num; i++) {
+        if (recv(connfd, buff + i * SOCKETIO_BUFFER_SIZE, SOCKETIO_BUFFER_SIZE, 0) == -1) {
+            perror("recv");
+            free (buff);
+            return -1;
+        }
+    }
+    if (i == 0) {
+        i = 1;
+    }
+    int rem_bytes = msg->data_size % SOCKETIO_BUFFER_SIZE;
+    if (recv(connfd, buff + (i - 1) * SOCKETIO_BUFFER_SIZE, rem_bytes, 0) == -1) {
+        perror("recv");
+        free (buff);
+        return -1;
+    }
+    msg->data_ptr = buff;
+    return 0;
+}
+
 void* clithread (void* arg) {
     
-    printf("A client is connected.\n");
+    //printf("A client is connected.\n");
+    SRVR_LOG("A client is connected.\n");
     int connfd = *((int *) arg);
     pthread_detach(pthread_self());
 
     while(true) {
 
-        printf("wait for command\n");
         Message msg;
-        int number_bytes = recv(connfd, &msg, MESSAGE_LEN, 0); 
-        if (number_bytes <= 0) {
-            perror("recv");
-            free(arg);
-            close(connfd);
-            pthread_exit(NULL);
+        if (parse_msg (&msg, connfd) != 0) {
+            break;
         }
-        cout<<"command received "<<number_bytes<<" bytes"<<endl;
 
-        if (handle_msg(&msg, connfd) == -1 ) {
+        if (handle_msg (&msg, connfd) != 0 ) {
             break;
         }
     }
@@ -69,7 +114,6 @@ void* clithread (void* arg) {
 void listen(int port) {
 
     int *connfd;
-    int sockfd;
 
     struct sockaddr_in servaddr;
     struct sockaddr_in tempaddr;
@@ -99,7 +143,7 @@ void listen(int port) {
         exit(1);
     }
 
-    printf("Server is listening on port %d\n", ntohs(tempaddr.sin_port));
+    printf("[SERVER] Server is listening on port %d\n", ntohs(tempaddr.sin_port));
 
     if (listen(sockfd, BACKLOG) == -1) {
         perror("listen");
@@ -149,10 +193,29 @@ int main(int argc, char** argv) {
         }
     }
 
+    // Ftp service
     add_handler(GET, &get_handler);
     add_handler(PUT, &put_handler);
-    add_handler(CHAT, &chat_handler);
-    listen(port);
 
-    
+    // Chat service
+    add_handler(CONN, &conn_handler);
+    add_handler(WAITMSG, &waitmsg_handler);
+    add_handler(SENDMSG, &sendmsg_handler);
+
+    pid_t dispatch_child = fork();
+    if (dispatch_child >= 0) {
+        
+        if (dispatch_child == 0) {
+            loop_dispatch();
+        } else {
+            //printf("dispatch process is started\n");
+            SRVR_LOG("dispatch process is started\n");
+        }
+    } else {
+        perror("loop_dispatch");
+        exit(0);
+    }
+    listen(port);
+    //signal (SIGQUIT | SIGINT | SIGKILL | SIGHUP | SIGSTOP | SIGABRT | SIGTERM , sig_handler);
+    signal (SIGINT, sig_handler);
 }

@@ -7,9 +7,8 @@
 #ifndef FILESERVER_H
 #define FILESERVER_H
 
+#define SRVR_LOG(arg) printf("[SERVER] %s", arg)
 #include "Message.h"
-
-#define SOCKETIO_BUFFER_SIZE 512
 
 void parse_msg(Message, char*);
 int handle_msg(Message*, int);

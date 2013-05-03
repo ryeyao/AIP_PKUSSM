@@ -2,15 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <unistd.h>
+#include <map>
 using namespace std;
 
 int main () {
-    char a[] = "1234567890";
-    char c[] = "1234";
-    char *b = new char[15];
-    strncpy (b, a, 10);
-    strncpy (b + 10, c, 5); 
+    map<int, int> map_ptr;
+    map<int, int> *pm;
+    map_ptr[0] = 1;
+    pm = &map_ptr;
+    (*pm)[(*(&map_ptr)).begin()->first] = 2;
 
-    printf("%s", b);
-    delete[] b;
+
+    printf ("%d\n", (*pm).begin()->second);
 }

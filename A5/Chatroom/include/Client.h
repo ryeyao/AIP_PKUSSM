@@ -13,4 +13,14 @@
 
 #define SOCKETIO_BUFFER_SIZE 512
 
+#define MESSAGE_DIS(from, to, msg) printf("[%s] says to [%s]: %s\n", from,  to, msg)
+
+void sighandler (int);
+int comm_get (int, char*);
+int comm_put (int, char*);
+int comm_quit (int);
+int comm_conn (int);
+void* comm_waitmsg (void*);
+int comm_sendmsg (int, char*, char*);
+int console (int);
 #endif
