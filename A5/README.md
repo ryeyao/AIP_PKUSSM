@@ -16,8 +16,10 @@ USAGE
 > NOTE: For now, you can only use user id to chat with people and for some reasons your id is decided by yourself, that is to say you must ensure the unique of your id, or you may hijack some one else's connection info in the server.   
 
 #### To simply start chatting by type command like this  
-    send 2 hi there!  
-> the pattern of the command is <send \<id\> \<message to send\>>  
+    send 2 Hi there!  
+> the pattern of the command is send <'id[1~255]'> <'message to send'>  
+#### Send to all
+    send 0 Hi all!
 
 ## TraceRoute
 ### Usage
