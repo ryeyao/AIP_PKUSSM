@@ -7,7 +7,7 @@
 #include <cstdio>
 using namespace std;
 
-class Pakiet
+class Packet
 {
     string ip;
     double time;
@@ -15,8 +15,8 @@ public:
     int ttl;
     int came;
     bool isFull(); 
-    Pakiet();
-    Pakiet(int t);
+    Packet();
+    Packet(int t);
     void setIP(string ipaddress);
     void signNew(double usec);
     void print();

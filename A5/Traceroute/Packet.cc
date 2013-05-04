@@ -3,20 +3,20 @@
  * E-mail: rye.y.cn@gmail.com
  * Date: 2013/04/08
  */
-#include "Pakiet.h"
+#include "Packet.h"
 
-bool Pakiet::isFull() 
+bool Packet::isFull() 
 { 
     return came == 3; 
 }
 
-Pakiet::Pakiet()
+Packet::Packet()
 {
-    Pakiet(0);
+    Packet(0);
 }
-Pakiet::Pakiet(int t) :ip(""), time(0), ttl(t), came(0) {}
+Packet::Packet(int t) :ip(""), time(0), ttl(t), came(0) {}
 
-void Pakiet::setIP(string ipaddress)
+void Packet::setIP(string ipaddress)
 {
     if(ip.empty())
     {
@@ -27,12 +27,12 @@ void Pakiet::setIP(string ipaddress)
         ip += " " + ipaddress;
     }
 }
-void Pakiet::signNew(double usec)
+void Packet::signNew(double usec)
 {
     came++;
     time += usec;
 }
-void Pakiet::print()
+void Packet::print()
 {
     printf("%d. %s ",ttl,ip.c_str());
     if(isFull())
@@ -41,7 +41,7 @@ void Pakiet::print()
         printf("???");
     printf("\n");
 }
-bool Pakiet::isFilled()
+bool Packet::isFilled()
 {
   return came > 0;
 }

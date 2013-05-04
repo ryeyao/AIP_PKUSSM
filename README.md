@@ -1,4 +1,4 @@
 HLIPA_PKUSSM
 ============
 
-High-Level Internet Programming Assignments (PKUSSM)
+Advanced Internet Programming Assignments (PKUSSM)

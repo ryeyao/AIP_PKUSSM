@@ -2,7 +2,7 @@ USAGE
 ================
 Project Page on github: http://github.com/ryeyao/HLIPA_PKUSSM
 ## Chatroom (alpha)
-Based on the code of file server/client in the third homework.
+Based on the code of file server/client in assignment 3.
 ### Usage
 #### First compile the proj  
     make  
@@ -20,6 +20,16 @@ Based on the code of file server/client in the third homework.
     send 2 Hi there!  
 > the pattern of the command is send <'id[1~255]'> <'message to send'>  
 
+#### TODO  
+* Fix bugs while transmitting socket descriptors between processes through shared memory using struct msghdr
+* Fix messy characters while display messages that are received
+
+#### Features to be support
+* Support sending message using user's nick name
+* Support UUID
+* Support file transmitting between two user
+* Support voice chatting
+* Support video chatting
 
 #### Send to all
     send 0 Hi all!

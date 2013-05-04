@@ -7,8 +7,6 @@
 #include <netinet/ip_icmp.h>
 #include "icmp.h"
 
-// Funkcja z kodu ping.c z pakietu iputils-20071127
-
 short
 in_cksum( short *addr, register int len, short csum)
 {
@@ -17,12 +15,6 @@ in_cksum( short *addr, register int len, short csum)
     register short answer;
     register int sum = csum;
 
-    /*   
-     *  Our algorithm is simple, using a 32 bit accumulator (sum),
-     *  we add sequential 16 bit words to it, and at the end, fold
-     *  back all the carry bits from the top 16 bits into the lower
-     *  16 bits.
-     */
     while (nleft > 1)  {
         sum += *w++;
         nleft -= 2;

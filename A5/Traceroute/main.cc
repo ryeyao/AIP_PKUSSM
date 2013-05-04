@@ -14,14 +14,14 @@
 #include <unistd.h>
 #include "sockwrap.h"
 #include "icmp.h"
-#include "Pakiet.h"
+#include "Packet.h"
 #include "netdb.h"
 using namespace std;
 
 int maxhops = 30;
 unsigned char 	buffer[IP_MAXPACKET+1];
 unsigned char* 	buffer_ptr;
-Pakiet* packets;
+Packet* packets;
 int pid;
 
 void shift_bytes (int count);
@@ -55,10 +55,10 @@ int main (int argc, char** argv)
     }
 
     printf("traceroute to %s (%s), %d hops max, %d byte packets\n", argv[1], p, maxhops, sizeof(struct iphdr) + sizeof(struct udphdr));
-	packets = new Pakiet[maxhops + 1]();
+	packets = new Packet[maxhops + 1]();
 	for(int i = 0 ; i < maxhops; ++i)
 	{
-		packets[i] = Pakiet(i);
+		packets[i] = Packet(i);
 	}
 	pid = getpid();
 	
@@ -120,7 +120,7 @@ int main (int argc, char** argv)
 							{
 								
 								processPacket(icmp_packet->icmp_seq,ip_address,timers,i);
-								Pakiet pac = packets[icmp_packet->icmp_seq];
+								Packet pac = packets[icmp_packet->icmp_seq];
 								if(pac.isFull())
 								{	
 									pac.print();
@@ -147,7 +147,7 @@ int main (int argc, char** argv)
 					shift_bytes(packet_orig->ip_hl *4);
 					
 					processPacket(icmp_packet->icmp_seq,ip_address,timers,i);
-					Pakiet pac = packets[icmp_packet->icmp_seq];
+					Packet pac = packets[icmp_packet->icmp_seq];
 					if(pac.isFull())
 					{	
 						pac.print();
@@ -190,7 +190,7 @@ void sendIcmpPacket(sockaddr_in &remote_address, int sockfd, int ttl)
 }
 void processPacket(int seq,string ip_address,timeval* timers,int i)
 {
-	Pakiet pac = packets[seq];
+	Packet pac = packets[seq];
 	pac.setIP(ip_address);
 	timeval tim;
 	gettimeofday(&tim,NULL);

@@ -4,8 +4,8 @@ CFLAGS = -c
 OUTPUT = traceroute
 all: $(OUTPUT)
 
-traceroute: Pakiet.o icmp.o sockwrap.o main.o
-	$(CXX) $(CXXFLAGS) main.o Pakiet.o sockwrap.o icmp.o -o $(OUTPUT)
+traceroute: Packet.o icmp.o sockwrap.o main.o
+	$(CXX) $(CXXFLAGS) main.o Packet.o sockwrap.o icmp.o -o $(OUTPUT)
 
 main.o: main.cc
 	$(CXX) $(CFLAGS) main.cc 
@@ -13,8 +13,10 @@ icmp.o: icmp.cc
 	$(CXX) $(CFLAGS) icmp.cc icmp.h 
 sockwrap.o: sockwrap.cc
 	$(CXX) $(CFLAGS) sockwrap.cc sockwrap.h 
-Pakiet.o: Pakiet.cc
-	$(CXX) $(CFLAGS) Pakiet.cc Pakiet.h 
+Packet.o: Packet.cc
+	$(CXX) $(CFLAGS) Packet.cc Packet.h 
 
 clean:
-	rm -rf *.o $(OUTPUT) *.pch
+	rm -rf *.o $(OUTPUT)
+deepclean:
+	rm -rf *.o $(OUTPUT) *.gch
