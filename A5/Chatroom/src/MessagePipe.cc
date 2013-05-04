@@ -16,7 +16,7 @@ template <class T>
 MessagePipe<T>::MessagePipe (char* fifoname) {
 
     this->fifoname = fifoname;
-    if (mkfifo (fifoname, 0777) < 0) {
+    if (mkfifo (fifoname, 0600) < 0) {
         perror("mkfifo");
     }
     lock = ATOMIC_VAR_INIT(false);
@@ -28,19 +28,26 @@ MessagePipe<T>::~MessagePipe () {
 
 template <class T>
 void MessagePipe<T>::putMessage (T msg) {
-    while (atomic_exchange_explicit(&lock, true, memory_order_acquire))
-        ;
 
     int fd = 0;
-    fd = open (fifoname, O_WRONLY);
+    //printf("before write open\n");
+    if ((fd = open (fifoname, O_WRONLY)) < 0) {
+        perror("write open fifo");
+        atomic_store_explicit(&lock, false, memory_order_release);
+        return;
+    }
 
-    int total_size = sizeof(T) + msg->data_size;
+    int total_size = sizeof(T) + msg.data_size;
     char* buffer = new char[total_size];
 
-    memcpy (buffer, msg, sizeof(T)); // Write header
-    memcpy (buffer + sizeof(T), msg->data_ptr, msg->data_size); // Write body
+    memcpy (buffer, &msg, sizeof(T)); // Write header
+    memcpy (buffer + sizeof(T), msg.data_ptr, msg.data_size); // Write body
 
+    while (atomic_exchange_explicit(&lock, true, memory_order_acquire))
+        ;
+    //printf("total size is %d\n", total_size);
     write (fd, buffer, total_size); 
+    //printf("write buffer %s\n", msg.data_ptr);
 
     close (fd);
     delete[] buffer;
@@ -49,18 +56,26 @@ void MessagePipe<T>::putMessage (T msg) {
 
 template <class T>
 T MessagePipe<T>::getMessage () {
-    while (atomic_exchange_explicit(&lock, true, memory_order_acquire))
-        ;
     int fd = 0;
-    fd = open (fifoname, O_RDONLY);
+    //printf("before read open\n");
+    if ((fd = open (fifoname, O_RDONLY)) < 0) {
+        perror("read open fifo");
+        atomic_store_explicit(&lock, false, memory_order_release);
+        T msg;
+        msg.to = msg.from = 0;
+        return msg;
+    }
 
     T msg;
     // read header
-    read (fd, msg, sizeof(T));
+    while (atomic_exchange_explicit(&lock, true, memory_order_acquire))
+        ;
+    read (fd, &msg, sizeof(T));
     // read body into memory
-    char* buffer = new char[msg->data_size];
-    read (fd, buffer, msg->data_size);
-    msg->data_ptr = buffer;
+    char* buffer = new char[msg.data_size];
+    read (fd, buffer, msg.data_size);
+    msg.data_ptr = buffer;
+    //printf("read pipe %s\n", buffer);
 
     close (fd);
     atomic_store_explicit(&lock, false, memory_order_release);

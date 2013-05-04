@@ -1,7 +1,7 @@
 CC = gcc
 CPP = g++
 
-CFLAGS = -g -Wall -std=c++0x #-MM
+CFLAGS = -g -Wall -std=c++0x -ggdb3 #-MM
 
 CFLAGS += -pthread
 

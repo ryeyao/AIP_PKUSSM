@@ -199,14 +199,19 @@ int main(int argc, char** argv) {
 
     // Chat service
     add_handler(CONN, &conn_handler);
-    add_handler(WAITMSG, &waitmsg_handler);
     add_handler(SENDMSG, &sendmsg_handler);
 
-    pid_t dispatch_child = fork();
+    pthread_t pt;
+    if (pthread_create(&pt, NULL, loop_dispatch, 0) != 0)  {
+        perror("pthread_create");
+        exit(0);
+    }
+    /*pid_t dispatch_child = fork();
     if (dispatch_child >= 0) {
         
         if (dispatch_child == 0) {
             loop_dispatch();
+            exit(0);
         } else {
             //printf("dispatch process is started\n");
             SRVR_LOG("dispatch process is started\n");
@@ -215,6 +220,7 @@ int main(int argc, char** argv) {
         perror("loop_dispatch");
         exit(0);
     }
+    */
     listen(port);
     //signal (SIGQUIT | SIGINT | SIGKILL | SIGHUP | SIGSTOP | SIGABRT | SIGTERM , sig_handler);
     signal (SIGINT, sig_handler);

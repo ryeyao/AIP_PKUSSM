@@ -22,6 +22,8 @@ class MessageSharedMemory: public MessagePoll<T> {
     private:
         key_t key;
         atomic<bool> lock;
+        struct msghdr write_fd (void *ptr, size_t nbytes, int sendfd);
+        void read_fd (struct msghdr* fdhdr, void *ptr, size_t nbytes, int *recvfd);
         
 };
 

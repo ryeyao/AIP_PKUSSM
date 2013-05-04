@@ -11,10 +11,98 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "MessageSharedMemory.h"
+#include "User.h"
 
-#define SHM_SIZE 4096
+#define SHM_SIZE 32*sizeof(User)
+#define HAVE_MSGHDR_MSG_CONTROL
+template <class T>
+struct msghdr MessageSharedMemory<T>::write_fd (void *ptr, size_t nbytes, int sendfd) {
+
+    struct msghdr msg;
+    struct iovec iov[1];
+
+#ifdef HAVE_MSGHDR_MSG_CONTROL
+    union {
+        struct cmsghdr cm;
+        char control[CMSG_SPACE(sizeof(int))];
+    } control_un;
+    struct cmsghdr *cmptr;
+
+    msg.msg_control = control_un.control;
+    msg.msg_controllen = sizeof(control_un.control);
+    bzero(msg.msg_control, sizeof(control_un.control));
+
+    cmptr = CMSG_FIRSTHDR(&msg);
+    cmptr->cmsg_len = CMSG_LEN(sizeof(int));
+    cmptr->cmsg_level = SOL_SOCKET;
+    cmptr->cmsg_type = SCM_RIGHTS;
+    *((int*) CMSG_DATA(cmptr)) = sendfd;
+#else
+    msg.msg_accrights = (caddr_t) &sendfd;
+    msg.msg_accrightslen = sizeof (int);
+#endif
+    msg.msg_name = NULL;
+    msg.msg_namelen = 0;
+
+    iov[0].iov_base = ptr;
+    iov[0].iov_len = nbytes;
+    msg.msg_iov = iov;
+    msg.msg_iovlen = 1;
+    
+    return msg;
+}
+template <class T>
+void MessageSharedMemory<T>::read_fd (struct msghdr* fdhdr, void *ptr, size_t nbytes, int *recvfd) {
+    struct msghdr msg = *fdhdr;
+    struct iovec iov[1];
+    ssize_t n;
+
+#ifdef HAVE_MSGHDR_MSG_CONTROL
+    union {
+        struct cmsghdr cm;
+        char control[CMSG_SPACE(sizeof(int))];
+    } control_un;
+    struct cmsghdr *cmptr;
+
+    msg.msg_control = control_un.control;
+    msg.msg_controllen = sizeof (control_un.control);
+#else
+    int newfd;
+
+    msg.msg_accrights = (caddr_t) &newfd;
+    msg.msg_accrightslen = sizeof(int);
+#endif
+
+    msg.msg_name = NULL;
+    msg.msg_namelen = 0;
+
+    iov[0].iov_base = ptr;
+    iov[0].iov_len = nbytes;
+    msg.msg_iov = iov;
+    msg.msg_iovlen = 1;
+
+#ifdef HAVE_MSGHDR_MSG_CONTROL
+    if ((cmptr = CMSG_FIRSTHDR(&msg)) != NULL && cmptr->cmsg_len == CMSG_LEN(sizeof(int))) {
+        if (cmptr->cmsg_level != SOL_SOCKET)
+            perror ("control level != SOL_SOCKET");
+        if (cmptr->cmsg_type != SCM_RIGHTS)
+            perror ("control type != SCM_RIGHTS");
+        *recvfd = *((int*) CMSG_DATA(cmptr));
+    } else {
+        *recvfd = -1;
+    }
+#else
+    if (msg.msg_accrightslen == sizeof(int))
+        *recvfd = newfd;
+    else
+        *recvfd = -1;
+#endif
+    
+}
+
 template <class T>
 MessageSharedMemory<T>::MessageSharedMemory (char* ipc_name) {
 
@@ -40,25 +128,15 @@ void MessageSharedMemory<T>::putMessage (T msg) {
     if ( (shmid = shmget(key, SHM_SIZE, IPC_EXCL | 0600)) == -1) {
         perror ("shmget");
     }
-    void* temp;
-    temp = (void*) shmat (shmid, NULL, 0);
+    T temp_msg;
+    temp_msg = (T) shmat (shmid, NULL, 0);
 
-    if ((int)temp == -1) {
+    if ((int)temp_msg == -1) {
         perror ("shmat");
     }
-    //*T::iterator it = (*msg).begin();
-    //for (it = (*msg).begin(); it != (*msg).end(); ++it) {
-    //    (*temp_msg)[it->first] = it->second;
-    //}
-    //(*temp_msg).insert ((*msg).begin(), (*msg).end());
-
-    T* temp_msg;
-    temp_msg = new(temp) T;
-
-    int testf = msg.begin()->first;
-    int tests = msg.begin()->second;
-    //(*temp_msg)[(*msg).begin()->first] = (*msg).begin()->second;
-    (*temp_msg)[testf] = tests;
+    char c = '\0';
+    msg->fdhdr = write_fd(&c, 1, msg->connfd);
+    memcpy (temp_msg, msg, SHM_SIZE);
 
     atomic_store_explicit(&lock, false, memory_order_release);
 }
@@ -69,18 +147,20 @@ T MessageSharedMemory<T>::getMessage () {
         ;
 
     int shmid;
-    printf("1\n");
     if ( (shmid = shmget (key, SHM_SIZE, IPC_CREAT)) == -1) {
         perror ("shmget");
     }
-    printf("2\n");
     //FIXME this may cause seg fault
-    T* temp_msg;
-    temp_msg = (T*) shmat (shmid, NULL, 0);
-    printf("3\n");
-    printf("4\n");
+    T temp_msg;
+    temp_msg = (T) shmat (shmid, NULL, 0);
+    char c = 0;
+    int connfd = 0;
+    read_fd(&temp_msg->fdhdr, &c, 1, &connfd);
+    if (connfd > 0) {
+        temp_msg->connfd = connfd;
+    }
 
     atomic_store_explicit(&lock, false, memory_order_release);
-    printf("5\n");
-    return *temp_msg;
+    return temp_msg;
 }
+

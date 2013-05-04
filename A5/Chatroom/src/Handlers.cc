@@ -25,7 +25,7 @@ using namespace std;
 #ifdef MSG_STRATEGY_PIPE
 #include "MessagePipe.h"
 #include "MessagePipe.cc"
-MessagePoll<Message*> *msg_strategy = new MessagePipe<Message*>("msgpipe");
+MessagePoll<Message> *msg_strategy = new MessagePipe<Message>("msgpipe");
 #endif
 
 #ifdef MSG_STRATEGY_QUEUE
@@ -38,8 +38,8 @@ MessagePoll<Message*> *msg_strategy = new MessageQueue<Message*>();
 MessagePoll<Message*> *msg_strategy = new MessageSharedMemory<Message*>("msgshm");
 #endif
 
-MessagePoll<map<int, int>>* clilist_shm = new MessageSharedMemory<map<int, int>>("clilist_shm");
-map<int, int> *client_list = new map<int, int>();
+MessagePoll<User*>* clilist_shm = new MessageSharedMemory<User*>("clilist_shm");
+User client_list[MAX_USER_NUM];
 
 int get_handler (Message* msg, int connfd) {
 
@@ -139,82 +139,66 @@ int put_handler (Message* msg, int connfd) {
 int quit_handler (Message* msg, int connfd) {
 }
 
-void loop_dispatch () {
+void* loop_dispatch (void* arg) {
 
     while (true) {
 
-        printf("loopdispatch is getting clilist\n");
-        Message *resp_msg;
-        map<int, int> clilist;
-        printf("hahaha\n");
-        clilist = clilist_shm->getMessage ();
-        printf("loopdispatch is getting message\n");
+        //printf("loopdispatch is getting clilist\n");
+        Message resp_msg;
+        User* clilist;
+        //printf("loopdispatch is getting message\n");
         resp_msg = msg_strategy->getMessage ();
-
-        int buff_len = MESSAGE_LEN + resp_msg->data_size;
+        if (resp_msg.to == 0 && resp_msg.from == 0) {
+            continue;
+        }
+        clilist = clilist_shm->getMessage ();
+        //printf("loopdispatch will send message %s from User[%d] to User[%d]\n", resp_msg.data_ptr, resp_msg.from,  resp_msg.to);
+        int buff_len = MESSAGE_LEN + resp_msg.data_size;
         char* buff = (char*)malloc (buff_len);
-        memcpy (buff, resp_msg, MESSAGE_LEN);
-        memcpy (buff + MESSAGE_LEN, resp_msg->data_ptr, resp_msg->data_size);
+        memcpy (buff, &resp_msg, MESSAGE_LEN);
+        memcpy (buff + MESSAGE_LEN, resp_msg.data_ptr, resp_msg.data_size);
 
         int connfd;
-        if (IS_BROADCAST(resp_msg->to)) {
-            map<int, int>::iterator it = clilist.begin();
-            for (; it != clilist.end(); ++it) {
-                connfd = it->second;
-                send(connfd, buff, buff_len, 0);
+        int i;
+        int numbytes = 0;
+        if (IS_BROADCAST(resp_msg.to)) {
+            for (i = 0; i < MAX_USER_NUM; i++) {
+                connfd = clilist[i].connfd;
+                numbytes = send(connfd, buff, buff_len, 0);
             }
         } else {
-            connfd = clilist[resp_msg->to];
-            send(connfd, buff, buff_len, 0);
+            connfd = clilist[resp_msg.to].connfd;
+            numbytes = send(connfd, buff, buff_len, 0);
         }
 
+        //printf("loopdispatch send %d bytes\n", numbytes);
     
         free (buff);
-        if (resp_msg->data_ptr != NULL) {
-            free (resp_msg->data_ptr);
+        if (resp_msg.data_ptr != NULL) {
+            free (resp_msg.data_ptr);
         }
     }
 }
 
 int conn_handler (Message* msg, int connfd) {
     
-    printf("User %s[%d] is connected\n", msg->fname, msg->from);
+    printf("[SERVER] User %s[%d] is connected\n", msg->fname, msg->from);
 
-    map<int, int> temp_list;
-    temp_list[msg->from] = connfd;
+    User* temp_list = clilist_shm->getMessage ();
+    temp_list[msg->from].id = msg->from;
+    temp_list[msg->from].connfd = connfd;
+    strncpy(temp_list[msg->from].name, msg->fname, MAX_USER_NAME_LEN);
     clilist_shm->putMessage (temp_list);
 
     return 0;
 }
 
-/**
- * Another process call this function to read message
- */
-int waitmsg_handler (Message* msg, int connfd) {
-
-    printf("[SERVER] User[%d] is waiting for message\n", msg->from);
-    Message *resp_msg;
-    resp_msg = msg_strategy->getMessage ();
-    int buff_len = MESSAGE_LEN + resp_msg->data_size;
-    char* buff = (char*)malloc (buff_len);
-
-    memcpy (buff, resp_msg, MESSAGE_LEN);
-    memcpy (buff + MESSAGE_LEN, resp_msg->data_ptr, resp_msg->data_size);
-    send(connfd, buff, buff_len, 0);
-    
-    free (buff);
-    if (resp_msg->data_ptr != NULL) {
-        free (resp_msg->data_ptr);
-    }
-    return 0;
-}
-
 int sendmsg_handler (Message* msg, int connfd) {
 
-    printf("[SERVER] User %s[%d] send message: %s\n", msg->fname, msg->from, msg->data_ptr);
-    msg_strategy->putMessage (msg);
+    printf("[SERVER] User %s[%d] send message to User[%d]: %s\n", msg->fname, msg->from, msg->to,  msg->data_ptr);
+    msg_strategy->putMessage (*msg);
 
-    printf("put done!\n");
+    //printf("put done!\n");
     return 0;
 }
 
