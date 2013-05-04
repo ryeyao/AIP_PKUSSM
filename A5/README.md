@@ -18,6 +18,8 @@ USAGE
 #### To simply start chatting by type command like this  
     send 2 Hi there!  
 > the pattern of the command is send <'id[1~255]'> <'message to send'>  
+
+
 #### Send to all
     send 0 Hi all!
 
