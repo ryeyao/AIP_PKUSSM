@@ -1,15 +1,8 @@
-/* 
- Just show a concurrent multi-connection client example.
- Copyright (C) 2006, Li Suke, School of Software,
- Beijing University
- This  is free software; you can redistribute it and/or
- modify it freely.
-
- This software  is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-*/
-
+/**
+ * Author: Rye Yao
+ * E-mail: rye.y.cn@gmail.com
+ * Date: 2013/04/08
+ */
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>

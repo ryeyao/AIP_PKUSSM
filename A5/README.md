@@ -1,7 +1,8 @@
 USAGE
 ================
-
+Project Page on github: http://github.com/ryeyao/HLIPA_PKUSSM
 ## Chatroom (alpha)
+Based on the code of file server/client in the third homework.
 ### Usage
 #### First compile the proj  
     make  
@@ -25,3 +26,4 @@ USAGE
 
 ## TraceRoute
 ### Usage
+    sudo ./traceroute <ip|host>
