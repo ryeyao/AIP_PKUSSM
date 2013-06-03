@@ -1,4 +1,4 @@
-HLIPA_PKUSSM
+AIP_PKUSSM
 ============
 
 Advanced Internet Programming Assignments (PKUSSM)
